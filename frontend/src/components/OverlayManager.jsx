@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../config";
 
 const OverlayManager = ({ overlays, refreshOverlays }) => {
   const [editingId, setEditingId] = useState(null);
@@ -26,7 +27,7 @@ const OverlayManager = ({ overlays, refreshOverlays }) => {
   const handleUpdate = async () => {
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/overlays/${editingId}`,
+        `${API_BASE_URL}/api/overlays/${editingId}`,
         editForm
       );
 
@@ -55,7 +56,7 @@ const OverlayManager = ({ overlays, refreshOverlays }) => {
 
     try {
       const response = await axios.delete(
-        `http://localhost:5000/api/overlays/${overlayId}`
+        `${API_BASE_URL}/api/overlays/${overlayId}`
       );
 
       if (response.data.success) {

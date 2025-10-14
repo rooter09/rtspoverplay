@@ -8,7 +8,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:3000"])
+
+# Configure CORS to support both localhost and production deployments
+cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
+# Add wildcard for Vercel previews if needed
+allowed_origins = cors_origins + ["https://*.vercel.app"]
+CORS(app, origins=allowed_origins, supports_credentials=True)
 
 app.register_blueprint(overlays_bp, url_prefix="/api/overlays")
 app.register_blueprint(stream_bp, url_prefix="/api/stream")

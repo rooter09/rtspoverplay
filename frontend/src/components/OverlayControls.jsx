@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../config";
 
 const OverlayControls = ({ refreshOverlays, isStreaming }) => {
   const [formData, setFormData] = useState({
@@ -37,7 +38,7 @@ const OverlayControls = ({ refreshOverlays, isStreaming }) => {
     setMessage("");
 
     try {
-      const response = await axios.post("http://localhost:5000/api/overlays/", {
+      const response = await axios.post(`${API_BASE_URL}/api/overlays/`, {
         text: formData.text.trim(),
         top: formData.top,
         left: formData.left,

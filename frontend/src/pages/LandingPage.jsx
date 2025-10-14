@@ -4,6 +4,7 @@ import VideoPlayer from "../components/VideoPlayer";
 import OverlayControls from "../components/OverlayControls";
 import OverlayManager from "../components/OverlayManager";
 import StreamControls from "../components/StreamControls";
+import { API_BASE_URL } from "../config";
 import "./LandingPage.css";
 
 const LandingPage = () => {
@@ -17,7 +18,7 @@ const LandingPage = () => {
 
   const fetchOverlays = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/overlays/");
+      const response = await axios.get(`${API_BASE_URL}/api/overlays/`);
       if (response.data.success) {
         setOverlays(response.data.data);
       }

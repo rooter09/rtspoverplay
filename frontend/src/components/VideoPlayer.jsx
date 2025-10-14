@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Hls from "hls.js";
+import { API_BASE_URL } from "../config";
 
 const VideoPlayer = ({ overlays = [], onOverlayMove }) => {
   const videoRef = useRef(null);
@@ -36,13 +37,13 @@ const VideoPlayer = ({ overlays = [], onOverlayMove }) => {
           setIsLoading(false);
         });
 
-        hlsInstance.loadSource("http://localhost:5000/stream/out.m3u8");
+        hlsInstance.loadSource(`${API_BASE_URL}/stream/out.m3u8`);
         hlsInstance.attachMedia(video);
 
         setHls(hlsInstance);
       } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
         // Native HLS support (Safari)
-        video.src = "http://localhost:5000/stream/out.m3u8";
+        video.src = `${API_BASE_URL}/stream/out.m3u8`;
         setIsLoading(false);
       } else {
         setError("HLS playback not supported in this browser");

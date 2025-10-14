@@ -19,6 +19,7 @@ A full-stack web application for streaming RTSP video feeds with customizable te
 - [Usage](#usage)
 - [API Documentation](#api-documentation)
 - [Configuration](#configuration)
+- [Deployment](#deployment)
 - [Troubleshooting](#troubleshooting)
 - [Project Structure](#project-structure)
 - [Contributing](#contributing)
@@ -135,16 +136,51 @@ Complete API documentation available in [`API_DOCS.md`](API_DOCS.md)
 
 ## ⚙ Configuration
 
+### 🌐 Environment Configuration
+
+This project now supports **automatic environment detection** for seamless deployment:
+
+- **Development**: Uses `http://localhost:5000` automatically
+- **Production**: Uses `https://rtspoverplay.onrender.com` (Render backend)
+
+See **[ENVIRONMENT_SETUP.md](ENVIRONMENT_SETUP.md)** for complete configuration details.
+
 ### Backend Configuration
-Edit `backend/.env`:
+Create `backend/.env`:
 ```env
-MONGO_URI=mongodb://localhost:27017  # MongoDB connection
-FLASK_ENV=development               # Environment
-PORT=5000                          # Server port
+CORS_ORIGINS=http://localhost:3000
+MONGODB_URI=mongodb://localhost:27017/rtsp_overlay
+```
+
+For production deployment on Render:
+```env
+CORS_ORIGINS=http://localhost:3000,https://your-vercel-app.vercel.app
+MONGODB_URI=your_mongodb_atlas_connection_string
 ```
 
 ### Frontend Configuration
-API endpoints are configured in React components. Default: `http://localhost:5000`
+Environment files are pre-configured:
+- `.env.development` → `http://localhost:5000`
+- `.env.production` → `https://rtspoverplay.onrender.com`
+
+No code changes needed when switching environments!
+
+## 🚀 Deployment
+
+This application is configured for easy deployment:
+
+- **Frontend**: Deploy to [Vercel](https://vercel.com) (or any React hosting)
+- **Backend**: Deploy to [Render](https://render.com) (or any Python hosting)
+
+### Quick Deploy Links
+
+- 📘 **[Deployment Guide](DEPLOYMENT_GUIDE.md)** - Step-by-step deployment instructions
+- 🔧 **[Environment Setup](ENVIRONMENT_SETUP.md)** - Complete environment configuration guide
+
+### Current Production URLs
+
+- **Backend**: https://rtspoverplay.onrender.com
+- **Frontend**: Deploy to your Vercel account
 
 ## 🔧 Troubleshooting
 

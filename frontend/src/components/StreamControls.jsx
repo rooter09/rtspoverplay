@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../config";
 
 const StreamControls = ({ onStreamStatusChange }) => {
   const [rtspUrl, setRtspUrl] = useState("");
@@ -32,7 +33,7 @@ const StreamControls = ({ onStreamStatusChange }) => {
 
   const checkStreamStatus = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/stream/status");
+      const response = await axios.get(`${API_BASE_URL}/api/stream/status`);
       if (response.data.success) {
         setStreamStatus(response.data.data);
         if (onStreamStatusChange) {
@@ -54,7 +55,7 @@ const StreamControls = ({ onStreamStatusChange }) => {
     setMessage("");
 
     try {
-      const response = await axios.post("http://localhost:5000/api/stream/", {
+      const response = await axios.post(`${API_BASE_URL}/api/stream/`, {
         rtsp_url: rtspUrl.trim()
       });
 
@@ -86,7 +87,7 @@ const StreamControls = ({ onStreamStatusChange }) => {
     setMessage("");
 
     try {
-      const response = await axios.delete("http://localhost:5000/api/stream/");
+      const response = await axios.delete(`${API_BASE_URL}/api/stream/`);
 
       if (response.data.success) {
         setMessage("Stream stopped successfully!");
@@ -137,7 +138,7 @@ const StreamControls = ({ onStreamStatusChange }) => {
             <strong>RTSP URL:</strong> {streamStatus.rtsp_url}
           </div>
           <div className="info-item">
-            <strong>Stream URL:</strong> http://localhost:5000{streamStatus.stream_url}
+            <strong>Stream URL:</strong> {API_BASE_URL}{streamStatus.stream_url}
           </div>
           <div className="info-item">
             <strong>Started:</strong> {new Date(streamStatus.start_time).toLocaleString()}
