@@ -57,8 +57,7 @@ A full-stack web application for streaming RTSP video feeds with customizable te
 
 ### 1. Clone the Repository
 ```bash
-git clone <your-repo-url>
-cd rtsp-overlay-stream
+git clone https://github.com/rooter09/rtspoverplay.git
 ```
 
 ### 2. Backend Setup
