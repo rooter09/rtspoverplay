@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { API_BASE_URL } from "../config";
 
@@ -6,6 +6,7 @@ const StreamControls = ({ onStreamStatusChange }) => {
   const [rtspUrl, setRtspUrl] = useState("");
   const [isStarting, setIsStarting] = useState(false);
   const [isStopping, setIsStopping] = useState(false);
+  const [isTesting, setIsTesting] = useState(false);
   const [streamStatus, setStreamStatus] = useState({
     is_streaming: false,
     rtsp_url: null,
@@ -16,22 +17,12 @@ const StreamControls = ({ onStreamStatusChange }) => {
 
   // RTSP URL presets for testing
   const rtspPresets = [
-    { name: "RTSP.ME Test Stream", url: "rtsp://rtsp.me/abcd1234/" },
+    { name: "RTSP.ME Test Stream", url: "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov" },
     { name: "DevLine Test Stream", url: "rtsp://8.devline.ru:9784/cameras/18/streaming/sub?authorization=Basic%20YWRtaW46&audio=0" },
     { name: "Custom URL", url: "" }
   ];
 
-  useEffect(() => {
-    // Check stream status on component mount
-    checkStreamStatus();
-
-    // Set up periodic status checking
-    const interval = setInterval(checkStreamStatus, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const checkStreamStatus = async () => {
+  const checkStreamStatus = useCallback(async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/stream/status`);
       if (response.data.success) {
@@ -43,11 +34,31 @@ const StreamControls = ({ onStreamStatusChange }) => {
     } catch (error) {
       console.error("Error checking stream status:", error);
     }
+  }, [onStreamStatusChange]);
+
+  useEffect(() => {
+    // Check stream status on component mount
+    checkStreamStatus();
+
+    // Set up periodic status checking
+    const interval = setInterval(checkStreamStatus, 5000);
+
+    return () => clearInterval(interval);
+  }, [checkStreamStatus]);
+
+  const validateRtspUrl = (url) => {
+    // Check if URL starts with rtsp:// or rtsp://
+    return url.toLowerCase().startsWith('rtsp://');
   };
 
   const handleStartStream = async () => {
     if (!rtspUrl.trim()) {
       setMessage("Please enter an RTSP URL");
+      return;
+    }
+
+    if (!validateRtspUrl(rtspUrl)) {
+      setMessage("Please enter a valid RTSP URL (must start with rtsp://)");
       return;
     }
 
@@ -79,6 +90,38 @@ const StreamControls = ({ onStreamStatusChange }) => {
       );
     } finally {
       setIsStarting(false);
+    }
+  };
+
+  const handleTestConnection = async () => {
+    if (!rtspUrl.trim()) {
+      setMessage("Please enter an RTSP URL to test");
+      return;
+    }
+
+    if (!validateRtspUrl(rtspUrl)) {
+      setMessage("Please enter a valid RTSP URL (must start with rtsp://)");
+      return;
+    }
+
+    setIsTesting(true);
+    setMessage("Testing connection...");
+
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/stream/test`, {
+        rtsp_url: rtspUrl.trim()
+      });
+      
+      if (response.data.success) {
+        setMessage("✅ Connection test successful! RTSP URL is valid.");
+      } else {
+        setMessage(`❌ Connection test failed: ${response.data.error}`);
+      }
+    } catch (error) {
+      console.error("Error testing connection:", error);
+      setMessage(`❌ Connection test failed: ${error.response?.data?.error || error.message}`);
+    } finally {
+      setIsTesting(false);
     }
   };
 
@@ -114,13 +157,6 @@ const StreamControls = ({ onStreamStatusChange }) => {
 
   const handlePresetSelect = (presetUrl) => {
     setRtspUrl(presetUrl);
-  };
-
-  const formatUptime = (seconds) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
   return (

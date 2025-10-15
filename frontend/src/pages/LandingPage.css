@@ -209,6 +209,8 @@
   margin-bottom: 0.5rem;
   font-size: 0.9rem;
   color: #555;
+  word-break: break-all;
+  overflow-wrap: break-word;
 }
 
 .info-item:last-child {
@@ -217,6 +219,7 @@
 
 .info-item strong {
   color: #333;
+  word-break: normal;
 }
 
 /* Form Styles */
@@ -638,6 +641,95 @@
   border-radius: 8px;
 }
 
+/* Minimal styling for native video controls - let browser handle most styling */
+.video-element {
+  cursor: pointer;
+}
+
+/* Only ensure controls are enabled, don't override browser styling */
+.video-element[controls] {
+  pointer-events: auto;
+}
+
+/* LIVE Indicator Styles */
+.live-indicator {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 0, 0, 0.9);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+}
+
+.live-dot {
+  width: 6px;
+  height: 6px;
+  background: white;
+  border-radius: 50%;
+  animation: livePulse 1.5s ease-in-out infinite;
+}
+
+.live-text {
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+@keyframes livePulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.8);
+  }
+}
+
+/* Video Message Styles */
+.video-message {
+  position: absolute;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  text-align: center;
+  z-index: 1001;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: messageFadeIn 0.3s ease-in-out;
+}
+
+.video-message p {
+  margin: 0;
+  font-weight: 500;
+}
+
+@keyframes messageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+
 .overlays-container {
   position: absolute;
   top: 0;
@@ -652,6 +744,40 @@
 }
 
 /* Video Error Styles */
+.placeholder-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  background: rgba(0, 0, 0, 0.9);
+  border-radius: 8px;
+}
+
+.placeholder-content {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 2rem;
+}
+
+.placeholder-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.6;
+}
+
+.placeholder-content h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+}
+
+.placeholder-content p {
+  margin: 0;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
 .video-error {
   display: flex;
   align-items: center;

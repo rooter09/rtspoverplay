@@ -94,25 +94,94 @@ def get_stream_status():
         }
     })
 
+@stream_bp.route("/test", methods=["POST"])
+def test_rtsp_connection():
+    """Test RTSP connection without starting a full stream"""
+    try:
+        data = request.get_json()
+        if not data or "rtsp_url" not in data:
+            return jsonify({"error": "RTSP URL is required"}), 400
+        
+        rtsp_url = data["rtsp_url"]
+        
+        # Test connection with a short probe
+        test_command = [
+            "ffprobe",
+            "-rtsp_transport", "tcp",
+            "-timeout", "10000000",  # 10 second timeout
+            "-i", rtsp_url,
+            "-show_entries", "format=duration",
+            "-v", "quiet",
+            "-of", "csv=p=0"
+        ]
+        
+        result = subprocess.run(test_command, capture_output=True, text=True, timeout=15)
+        
+        if result.returncode == 0:
+            return jsonify({
+                "success": True,
+                "message": "RTSP connection successful",
+                "rtsp_url": rtsp_url
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": f"RTSP connection failed: {result.stderr}",
+                "rtsp_url": rtsp_url
+            }), 400
+            
+    except subprocess.TimeoutExpired:
+        return jsonify({
+            "success": False,
+            "error": "RTSP connection timeout",
+            "rtsp_url": rtsp_url
+        }), 408
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
 def start_ffmpeg_stream(rtsp_url):
     try:
         stream_dir = os.path.join(os.getcwd(), "stream")
         os.makedirs(stream_dir, exist_ok=True)
+        
+        # Enhanced FFmpeg command for stable live streaming (compatible version)
         command = [
             "ffmpeg",
+            "-rtsp_transport", "tcp",  # Use TCP for more reliable connection
+            "-rtsp_flags", "prefer_tcp",
+            "-timeout", "5000000",  # 5 second timeout
             "-i", rtsp_url,
-            "-c:v", "libx264",
-            "-preset", "ultrafast",
+            "-c:v", "libx264",  # Re-encode video for compatibility
+            "-preset", "veryfast",  # Balanced speed vs quality
             "-tune", "zerolatency",
+            "-g", "50",  # GOP size (keyframe every 50 frames for stability)
+            "-sc_threshold", "0",  # Disable scene change detection
+            "-b:v", "1000k",  # Lower bitrate for stability
+            "-maxrate", "1200k",
+            "-bufsize", "2000k",
+            "-r", "25",  # Force frame rate for consistency
+            "-c:a", "aac",  # Audio codec
+            "-b:a", "96k",  # Lower audio bitrate
+            "-ar", "44100",  # Audio sample rate
+            "-ac", "2",  # Stereo audio
+            "-shortest",  # End when shortest stream ends
             "-f", "hls",
-            "-hls_time", "2",
-            "-hls_list_size", "5",
-            "-hls_flags", "delete_segments+independent_segments",
+            "-hls_time", "3",  # 3 second segments for stability
+            "-hls_list_size", "6",  # Keep 6 segments (18 seconds buffer)
+            "-hls_flags", "delete_segments+append_list+omit_endlist",  # Live streaming flags
             "-hls_segment_type", "mpegts",
             "-hls_segment_filename", os.path.join(stream_dir, "segment_%03d.ts"),
+            "-start_number", "0",
+            "-loglevel", "warning",  # Reduce log verbosity
+            "-y",  # Overwrite output files
             os.path.join(stream_dir, "out.m3u8")
         ]
 
+        print(f"Starting FFmpeg stream for: {rtsp_url}")
+        
         process = subprocess.Popen(
             command,
             stdout=subprocess.PIPE,
@@ -122,17 +191,34 @@ def start_ffmpeg_stream(rtsp_url):
 
         streaming_status["process"] = process
 
-        time.sleep(2)
+        # Wait for stream to initialize
+        time.sleep(4)
 
         if process.poll() is None:
+            # Ensure the playlist is configured for live streaming
+            playlist_path = os.path.join(stream_dir, "out.m3u8")
+            if os.path.exists(playlist_path):
+                # Read and modify the playlist to ensure it's live
+                with open(playlist_path, 'r') as f:
+                    content = f.read()
+                
+                # Ensure it has live streaming markers
+                if '#EXT-X-ENDLIST' in content:
+                    content = content.replace('#EXT-X-ENDLIST', '')
+                    with open(playlist_path, 'w') as f:
+                        f.write(content)
+                    print("✅ Removed ENDLIST marker for live streaming")
+            
+            print(f"✅ FFmpeg stream started successfully")
             return True
         else:
             stdout, stderr = process.communicate()
-            print(f"FFmpeg failed: {stderr.decode()}")
+            error_msg = stderr.decode() if stderr else "Unknown error"
+            print(f"❌ FFmpeg failed: {error_msg}")
             return False
 
     except Exception as e:
-        print(f"Error starting FFmpeg: {str(e)}")
+        print(f"❌ Error starting FFmpeg: {str(e)}")
         return False
 
 def stop_ffmpeg_stream():

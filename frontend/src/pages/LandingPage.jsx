@@ -89,6 +89,7 @@ const LandingPage = () => {
           <div className="video-container">
             <VideoPlayer
               overlays={overlays}
+              isStreaming={isStreaming}
               onOverlayMove={(overlayId, isDragging) => {
                 console.log("Overlay drag:", overlayId, isDragging);
               }}
@@ -101,9 +102,6 @@ const LandingPage = () => {
         <div className="footer-content">
           <p>&copy; 2025 LiveSitter RTSP Professional</p>
           <div className="footer-links">
-            <a href="#docs" target="_blank" rel="noopener noreferrer">
-              Documentation
-            </a>
             <a href="https://github.com/rooter09/rtspoverplay" target="_blank" rel="noopener noreferrer">
               GitHub
             </a>
