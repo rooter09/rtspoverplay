@@ -3,6 +3,8 @@ from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError
 from bson import ObjectId
 import os
+import ssl
+import certifi
 
 overlays_bp = Blueprint("overlays", __name__)
 
@@ -12,10 +14,22 @@ overlays_bp = Blueprint("overlays", __name__)
 try:
     mongo_uri = os.getenv("MONGO_URI", "mongodb://localhost:27017")
     
-    client = MongoClient(
-        mongo_uri,
-        serverSelectionTimeoutMS=5000  # 5 second timeout
-    )
+    # Configure SSL/TLS for MongoDB Atlas
+    if 'mongodb+srv' in mongo_uri or 'mongodb.net' in mongo_uri:
+        # MongoDB Atlas connection with proper SSL configuration
+        client = MongoClient(
+            mongo_uri,
+            serverSelectionTimeoutMS=10000,
+            tls=True,
+            tlsAllowInvalidCertificates=False,
+            tlsCAFile=certifi.where()
+        )
+    else:
+        # Local MongoDB connection
+        client = MongoClient(
+            mongo_uri,
+            serverSelectionTimeoutMS=5000
+        )
     
     # Test the connection
     client.admin.command('ping')
