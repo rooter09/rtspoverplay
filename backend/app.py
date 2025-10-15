@@ -9,12 +9,9 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# Configure CORS to support both localhost and production deployments
-# Get allowed origins from environment variable (comma-separated)
 cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
-# Strip whitespace and trailing slashes from each origin
 cors_origins = [origin.strip().rstrip('/') for origin in cors_origins]
-print(f"🔧 CORS Origins configured: {cors_origins}")  # Debug log
+print(f"CORS Origins configured: {cors_origins}")
 CORS(app, origins=cors_origins, supports_credentials=True)
 
 app.register_blueprint(overlays_bp, url_prefix="/api/overlays")
@@ -22,24 +19,19 @@ app.register_blueprint(stream_bp, url_prefix="/api/stream")
 
 @app.route("/stream/<path:filename>")
 def serve_stream(filename):
-    # Use /tmp on production (Render) for writable storage
-    # Use local ./stream directory for development
     if os.getenv("RENDER"):
         stream_dir = "/tmp/stream"
     else:
         stream_dir = os.path.join(os.getcwd(), "stream")
     
     if filename.endswith('.m3u8'):
-        # Serve playlist with live streaming headers
         def generate():
             playlist_path = os.path.join(stream_dir, filename)
             if os.path.exists(playlist_path):
                 try:
                     with open(playlist_path, 'r') as f:
                         content = f.read()
-                    # Ensure no ENDLIST marker for live streams
                     content = content.replace('#EXT-X-ENDLIST', '')
-                    # Add live streaming headers if not present
                     if '#EXT-X-VERSION:3' not in content:
                         content = '#EXTM3U\n#EXT-X-VERSION:3\n' + content
                     yield content
@@ -57,7 +49,6 @@ def serve_stream(filename):
                            'Expires': '0'
                        })
     else:
-        # Serve segments with appropriate headers
         response = send_from_directory(stream_dir, filename, mimetype='video/mp2t')
         response.headers['Cache-Control'] = 'public, max-age=10'
         return response

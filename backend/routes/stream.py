@@ -197,34 +197,30 @@ def start_ffmpeg_stream(rtsp_url):
 
         streaming_status["process"] = process
 
-        # Wait for stream to initialize
         time.sleep(4)
 
         if process.poll() is None:
-            # Ensure the playlist is configured for live streaming
             playlist_path = os.path.join(stream_dir, "out.m3u8")
             if os.path.exists(playlist_path):
-                # Read and modify the playlist to ensure it's live
                 with open(playlist_path, 'r') as f:
                     content = f.read()
                 
-                # Ensure it has live streaming markers
                 if '#EXT-X-ENDLIST' in content:
                     content = content.replace('#EXT-X-ENDLIST', '')
                     with open(playlist_path, 'w') as f:
                         f.write(content)
-                    print("✅ Removed ENDLIST marker for live streaming")
+                    print("Removed ENDLIST marker for live streaming")
             
-            print(f"✅ FFmpeg stream started successfully")
+            print(f"FFmpeg stream started successfully")
             return True
         else:
             stdout, stderr = process.communicate()
             error_msg = stderr.decode() if stderr else "Unknown error"
-            print(f"❌ FFmpeg failed: {error_msg}")
+            print(f"FFmpeg failed: {error_msg}")
             return False
 
     except Exception as e:
-        print(f"❌ Error starting FFmpeg: {str(e)}")
+        print(f"Error starting FFmpeg: {str(e)}")
         return False
 
 def stop_ffmpeg_stream():

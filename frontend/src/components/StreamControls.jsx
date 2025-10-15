@@ -113,13 +113,13 @@ const StreamControls = ({ onStreamStatusChange }) => {
       });
       
       if (response.data.success) {
-        setMessage("✅ Connection test successful! RTSP URL is valid.");
+        setMessage("Connection test successful! RTSP URL is valid.");
       } else {
-        setMessage(`❌ Connection test failed: ${response.data.error}`);
+        setMessage(`Connection test failed: ${response.data.error}`);
       }
     } catch (error) {
       console.error("Error testing connection:", error);
-      setMessage(`❌ Connection test failed: ${error.response?.data?.error || error.message}`);
+      setMessage(`Connection test failed: ${error.response?.data?.error || error.message}`);
     } finally {
       setIsTesting(false);
     }

@@ -96,7 +96,7 @@ const OverlayControls = ({ refreshOverlays, isStreaming }) => {
         <h3>Add New Overlay</h3>
         {!isStreaming && (
           <div className="warning-message">
-            ⚠️ Start the RTSP stream first to see overlays
+            Start the RTSP stream first to see overlays
           </div>
         )}
       </div>

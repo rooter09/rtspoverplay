@@ -379,38 +379,83 @@ console.log(process.env.REACT_APP_API_BASE_URL)
 
 ```
 rtspoverplay/
-├── backend/                    # Flask API server
-│   ├── routes/                # API route handlers
-│   │   ├── overlays.py        # Overlay CRUD operations
-│   │   └── stream.py          # RTSP streaming logic
-│   ├── stream/                # HLS stream output directory
+├── backend/                    # Python Flask backend
 │   ├── app.py                 # Main Flask application
-│   ├── requirements.txt       # Python dependencies
-│   └── .env                   # Environment variables (create this)
+│   ├── auto_start_stream.py   # Auto-start FFmpeg script
+│   ├── start.sh              # Render startup script
+│   ├── requirements.txt      # Python dependencies
+│   ├── .env                  # Environment variables (local)
+│   ├── .env.example          # Example environment configuration
+│   └── routes/               # API route modules
+│       ├── overlays.py       # Overlay management endpoints
+│       └── stream.py         # Stream control endpoints
 │
-├── frontend/                   # React client application
-│   ├── src/
-│   │   ├── components/        # React components
+├── frontend/                  # React frontend
+│   ├── public/               # Static assets
+│   ├── src/                  # Source code
+│   │   ├── components/       # React components
 │   │   │   ├── VideoPlayer.jsx        # HLS video player
 │   │   │   ├── OverlayControls.jsx    # Add/edit overlays
 │   │   │   ├── OverlayManager.jsx     # Manage overlays
-│   │   │   └── StreamControls.jsx     # RTSP stream control
-│   │   ├── pages/
-│   │   │   └── LandingPage.jsx        # Main application page
-│   │   ├── config.js          # API configuration
-│   │   ├── App.js             # Root React component
-│   │   └── index.js           # React entry point
-│   ├── public/                # Static assets
-│   ├── .env.development       # Development environment
-│   ├── .env.production        # Production environment
-│   ├── package.json           # Node dependencies
-│   └── README.md              # Frontend docs
+│   │   │   ├── StreamControls.jsx     # RTSP stream control
+│   │   │   └── EmbeddedVideoPlayer.jsx # Embedded player
+│   │   ├── pages/           # Page components
+│   │   │   ├── LandingPage.jsx        # Main application page
+│   │   │   └── LandingPage.css        # Page styles
+│   │   ├── config.js        # Configuration
+│   │   ├── App.js           # Main app component
+│   │   └── index.js         # React entry point
+│   ├── .env.development     # Development environment
+│   ├── .env.production      # Production environment
+│   ├── package.json         # Node.js dependencies
+│   └── README.md            # Frontend documentation
 │
-├── API_DOCS.md                # Complete API documentation
-├── USER_GUIDE.md              # Detailed user guide
-├── README.md                  # This file
-├── start-backend.bat          # Windows backend starter
-└── start-frontend.bat         # Windows frontend starter
+├── deployment/               # Deployment configuration
+│   ├── render.yaml          # Render deployment config
+│   ├── Dockerfile           # Docker configuration
+│   └── render-build.sh      # Render build script
+│
+├── scripts/                 # Utility scripts
+│   ├── start-backend.bat    # Windows backend starter
+│   ├── start-frontend.bat   # Windows frontend starter
+│   └── update-cors.bat      # CORS update helper
+│
+├── README.md                # Main project documentation
+└── API_DOCS.md              # API documentation
+```
+
+### Environment Configuration
+
+**Backend Environment Variables:**
+- `CORS_ORIGINS`: Allowed frontend origins (comma-separated)
+- `MONGO_URI`: MongoDB connection string
+- `DEFAULT_RTSP_URL`: Default RTSP stream URL
+- `RENDER`: Set to "true" on Render deployment
+
+**Frontend Environment Variables:**
+- `REACT_APP_API_BASE_URL`: Backend API URL
+
+### Quick Start Commands
+
+**Windows:**
+```bash
+scripts/start-backend.bat
+scripts/start-frontend.bat
+```
+
+**Linux/macOS:**
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python app.py
+```
+
+```bash
+cd frontend
+npm install
+npm start
 ```
 
 ## 🧪 Testing RTSP URLs

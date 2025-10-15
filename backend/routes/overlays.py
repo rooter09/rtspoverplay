@@ -29,11 +29,11 @@ try:
             db = client["rtspdb"]
         else:
             db = client["rtsp_overlay_app"]
-        print(f"✅ MongoDB Atlas connected: {db.name}")
+        print(f"MongoDB Atlas connected: {db.name}")
     else:
         # Local MongoDB
         db = client["rtsp_overlay_app"]
-        print(f"✅ Local MongoDB connected: {db.name}")
+        print(f"Local MongoDB connected: {db.name}")
     
     collection = db["overlays"]
     MONGODB_AVAILABLE = True
@@ -41,12 +41,12 @@ try:
 except (ConnectionFailure, ServerSelectionTimeoutError) as e:
     MONGODB_AVAILABLE = False
     collection = None
-    print(f"⚠️  MongoDB not available: {e}")
-    print("⚠️  Overlay persistence disabled. Configure MONGO_URI environment variable to enable.")
+    print(f"MongoDB not available: {e}")
+    print("Overlay persistence disabled. Configure MONGO_URI environment variable to enable.")
 except Exception as e:
     MONGODB_AVAILABLE = False
     collection = None
-    print(f"⚠️  MongoDB connection error: {e}")
+    print(f"MongoDB connection error: {e}")
 
 @overlays_bp.route("/", methods=["POST"])
 def create_overlay():
