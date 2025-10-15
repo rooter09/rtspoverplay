@@ -12,8 +12,9 @@ app = Flask(__name__)
 # Configure CORS to support both localhost and production deployments
 # Get allowed origins from environment variable (comma-separated)
 cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
-# Strip whitespace from each origin
-cors_origins = [origin.strip() for origin in cors_origins]
+# Strip whitespace and trailing slashes from each origin
+cors_origins = [origin.strip().rstrip('/') for origin in cors_origins]
+print(f"🔧 CORS Origins configured: {cors_origins}")  # Debug log
 CORS(app, origins=cors_origins, supports_credentials=True)
 
 app.register_blueprint(overlays_bp, url_prefix="/api/overlays")
