@@ -21,7 +21,12 @@ app.register_blueprint(stream_bp, url_prefix="/api/stream")
 
 @app.route("/stream/<path:filename>")
 def serve_stream(filename):
-    stream_dir = os.path.join(os.getcwd(), "stream")
+    # Use /tmp on production (Render) for writable storage
+    # Use local ./stream directory for development
+    if os.getenv("RENDER"):
+        stream_dir = "/tmp/stream"
+    else:
+        stream_dir = os.path.join(os.getcwd(), "stream")
     
     if filename.endswith('.m3u8'):
         # Serve playlist with live streaming headers

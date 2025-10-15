@@ -144,7 +144,13 @@ def test_rtsp_connection():
 
 def start_ffmpeg_stream(rtsp_url):
     try:
-        stream_dir = os.path.join(os.getcwd(), "stream")
+        # Use /tmp on production (Render) for writable storage
+        # Use local ./stream directory for development
+        if os.getenv("RENDER"):
+            stream_dir = "/tmp/stream"
+        else:
+            stream_dir = os.path.join(os.getcwd(), "stream")
+        
         os.makedirs(stream_dir, exist_ok=True)
         
         # Enhanced FFmpeg command for stable live streaming (compatible version)

@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: rtspoverplay
+    env: python
+    region: oregon
+    plan: free
+    rootDir: backend
+    buildCommand: |
+      # Install FFmpeg (required for RTSP streaming)
+      apt-get update && apt-get install -y ffmpeg
+      # Install Python dependencies
+      pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 2 --timeout 120
+    envVars:
+      - key: RENDER
+        value: "true"
+      - key: CORS_ORIGINS
+        sync: false
+        # Update this with your actual Vercel URL
+      - key: MONGO_URI
+        sync: false
+        # Optional: Add MongoDB Atlas connection string for overlay persistence
+
