@@ -15,9 +15,7 @@ services:
       - key: RENDER
         value: "true"
       - key: CORS_ORIGINS
-        sync: false
-        # Update this with your actual Vercel URL
+        value: "http://localhost:3000,https://rtspoverplay.vercel.app"
       - key: MONGO_URI
-        sync: false
-        # Optional: Add MongoDB Atlas connection string for overlay persistence
+        value: "mongodb+srv://harshsandilya09_db_user:2xMaLAKx7LMlMpkb@rtsp.ljekha6.mongodb.net/rtspdb?retryWrites=true&w=majority&appName=rtsp"
 

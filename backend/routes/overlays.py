@@ -6,23 +6,47 @@ import os
 
 overlays_bp = Blueprint("overlays", __name__)
 
-# Try to connect to MongoDB with timeout
+# MongoDB connection with support for both local and Atlas
+# Local development: mongodb://localhost:27017
+# Production (Render): mongodb+srv://...atlas.mongodb.net/...
 try:
+    mongo_uri = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+    
     client = MongoClient(
-        os.getenv("MONGO_URI", "mongodb://localhost:27017"),
+        mongo_uri,
         serverSelectionTimeoutMS=5000  # 5 second timeout
     )
+    
     # Test the connection
     client.admin.command('ping')
-    db = client["rtsp_overlay_app"]
+    
+    # Use database from connection string if available, otherwise use default
+    # For Atlas: mongodb+srv://user:pass@cluster.mongodb.net/rtspdb → uses "rtspdb"
+    # For local: mongodb://localhost:27017 → uses "rtsp_overlay_app"
+    if 'mongodb+srv' in mongo_uri or 'mongodb.net' in mongo_uri:
+        # MongoDB Atlas - extract database name from URI or use default
+        if '/rtspdb' in mongo_uri:
+            db = client["rtspdb"]
+        else:
+            db = client["rtsp_overlay_app"]
+        print(f"✅ MongoDB Atlas connected: {db.name}")
+    else:
+        # Local MongoDB
+        db = client["rtsp_overlay_app"]
+        print(f"✅ Local MongoDB connected: {db.name}")
+    
     collection = db["overlays"]
     MONGODB_AVAILABLE = True
-    print("✅ MongoDB connected successfully")
+    
 except (ConnectionFailure, ServerSelectionTimeoutError) as e:
     MONGODB_AVAILABLE = False
     collection = None
     print(f"⚠️  MongoDB not available: {e}")
     print("⚠️  Overlay persistence disabled. Configure MONGO_URI environment variable to enable.")
+except Exception as e:
+    MONGODB_AVAILABLE = False
+    collection = None
+    print(f"⚠️  MongoDB connection error: {e}")
 
 @overlays_bp.route("/", methods=["POST"])
 def create_overlay():
