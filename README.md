@@ -383,6 +383,7 @@ rtspoverplay/
 │   ├── app.py                 # Main Flask application
 │   ├── auto_start_stream.py   # Auto-start FFmpeg script
 │   ├── start.sh              # Render startup script
+│   ├── render.yaml           # Render deployment config
 │   ├── requirements.txt      # Python dependencies
 │   ├── .env                  # Environment variables (local)
 │   ├── .env.example          # Example environment configuration
@@ -411,7 +412,6 @@ rtspoverplay/
 │   └── README.md            # Frontend documentation
 │
 ├── deployment/               # Deployment configuration
-│   ├── render.yaml          # Render deployment config
 │   ├── Dockerfile           # Docker configuration
 │   └── render-build.sh      # Render build script
 │
